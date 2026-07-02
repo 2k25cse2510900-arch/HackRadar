@@ -17,7 +17,32 @@ const app = express();
 configurePassport();
 
 app.use(helmet());
-app.use(cors({ origin: env.frontendUrl, credentials: true }));
+
+// ================= DEBUG LOGS =================
+console.log("====================================");
+console.log("HackRadar Backend Started");
+console.log("NODE_ENV:", env.nodeEnv);
+console.log("FRONTEND_URL:", env.frontendUrl);
+console.log("====================================");
+
+app.use((req, res, next) => {
+  console.log("---------- Incoming Request ----------");
+  console.log("Method :", req.method);
+  console.log("Path   :", req.originalUrl);
+  console.log("Origin :", req.headers.origin);
+  console.log("FRONTEND_URL:", env.frontendUrl);
+  console.log("--------------------------------------");
+  next();
+});
+// ==============================================
+
+app.use(
+  cors({
+    origin: env.frontendUrl,
+    credentials: true,
+  })
+);
+
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
