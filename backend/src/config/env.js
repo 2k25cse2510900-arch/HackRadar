@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const readEnv = (key, fallback = "") => (process.env[key] || fallback).trim();
+const trimTrailingSlashes = (value) => value.replace(/\/+$/, "");
 
 const env = {
   nodeEnv: readEnv("NODE_ENV", "development"),
@@ -8,7 +9,7 @@ const env = {
   mongodbUri: readEnv("MONGODB_URI", "mongodb://127.0.0.1:27017/hackradar"),
   jwtSecret: readEnv("JWT_SECRET", "development-only-secret-change-me"),
   jwtExpiresIn: readEnv("JWT_EXPIRES_IN", "7d"),
-  frontendUrl: readEnv("FRONTEND_URL", "http://localhost:3000"),
+  frontendUrl: trimTrailingSlashes(readEnv("FRONTEND_URL", "http://localhost:3000")),
   googleClientId: readEnv("GOOGLE_CLIENT_ID"),
   googleClientSecret: readEnv("GOOGLE_CLIENT_SECRET"),
   googleCallbackUrl:
