@@ -1,4 +1,7 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = configuredApiUrl.replace(/\/$/, "").endsWith("/api")
+  ? configuredApiUrl
+  : `${configuredApiUrl.replace(/\/$/, "")}/api`;
 
 export const AUTH_TOKEN_STORAGE_KEY = "hackradar-auth-token";
 export const AUTH_USER_STORAGE_KEY = "hackradar-auth-user";
