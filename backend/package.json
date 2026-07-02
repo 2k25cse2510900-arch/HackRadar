@@ -1,0 +1,35 @@
+{
+  "name": "hackradar-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Express and MongoDB backend for HackRadar MVP.",
+  "main": "server.js",
+  "scripts": {
+    "build": "node scripts/check-syntax.js",
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "axios": "^1.18.1",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.5",
+    "morgan": "^1.10.0",
+    "node-cron": "^4.5.0",
+    "node-telegram-bot-api": "^0.66.0",
+    "nodemailer": "^9.0.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  }
+}
