@@ -23,8 +23,22 @@ app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
 app.use(passport.initialize());
 
+// Root Route
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "HackRadar Backend is Running 🚀",
+    version: "1.0.0",
+  });
+});
+
+// API Routes
 app.use("/api", routes);
+
+// 404 Middleware
 app.use(notFoundMiddleware);
+
+// Error Middleware
 app.use(errorMiddleware);
 
 module.exports = app;
