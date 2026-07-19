@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "leaflet/dist/leaflet.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -44,6 +45,8 @@
 }
 
 :root {
+  --font-inter: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-manrope: "Manrope", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --background: #f8f7fb;
   --surface: #ffffff;
   --foreground: #1f1930;
@@ -62,6 +65,9 @@
   --ring: #a855f7;
   --radius: 0.625rem;
   --input: var(--border);
+  --magicui-ripple-color: rgba(139, 92, 246, 0.18);
+  --magicui-ripple-glow: rgba(139, 92, 246, 0.22);
+  --magicui-ripple-duration: 420ms;
 }
 
 .dark {
@@ -82,11 +88,20 @@
   --danger: #f87171;
   --ring: #c084fc;
   --input: var(--border);
+  --magicui-ripple-color: rgba(167, 139, 250, 0.25);
+  --magicui-ripple-glow: rgba(167, 139, 250, 0.32);
+  --magicui-ripple-duration: 420ms;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  button,
+  [data-slot="button"] {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
   }
   body {
     @apply bg-background text-foreground;
@@ -107,6 +122,49 @@
   h6 {
     font-family: var(--font-manrope), sans-serif;
     letter-spacing: -0.03em;
+  }
+}
+
+@layer utilities {
+  @keyframes magicui-button-ripple {
+    0% {
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0.38;
+    }
+    60% {
+      opacity: 0.2;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0;
+    }
+  }
+
+  @keyframes magicui-button-press {
+    0% {
+      transform: scale(1);
+    }
+    40% {
+      transform: scale(0.98);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  button[data-ripple-active="true"],
+  [data-slot="button"][data-ripple-active="true"] {
+    animation: magicui-button-press var(--magicui-ripple-duration) ease-out;
+  }
+
+  button .magicui-ripple-wave,
+  [data-slot="button"] .magicui-ripple-wave {
+    position: absolute;
+    border-radius: 9999px;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    transform: translate(-50%, -50%) scale(0);
+    animation: magicui-button-ripple var(--magicui-ripple-duration) ease-out forwards;
   }
 }
 
@@ -145,4 +203,122 @@
       animation: none !important;
     }
   }
+
+  @keyframes radar-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes radar-ring {
+    0% {
+      transform: scale(0.92);
+      opacity: 0.24;
+    }
+    55% {
+      opacity: 0.08;
+    }
+    100% {
+      transform: scale(1.1);
+      opacity: 0;
+    }
+  }
+
+  @keyframes radar-marker-pulse {
+    0% {
+      transform: translate3d(0, 0, 0) scale(1);
+      filter: drop-shadow(0 0 0 rgba(168, 85, 247, 0));
+    }
+    40% {
+      transform: translate3d(0, -1px, 0) scale(1.18);
+      filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.45));
+    }
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+      filter: drop-shadow(0 0 0 rgba(168, 85, 247, 0));
+    }
+  }
+
+  .radar-sweep {
+    animation: radar-spin 6.5s linear infinite;
+    transform-origin: center;
+    will-change: transform;
+  }
+
+  .radar-ring {
+    animation: radar-ring 3.8s ease-out infinite;
+    will-change: transform, opacity;
+  }
+
+  .radar-marker {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 9999px;
+    transform: translate3d(0, 0, 0);
+    transition:
+      transform 220ms ease,
+      filter 220ms ease,
+      opacity 220ms ease;
+  }
+
+  .radar-marker__core {
+    position: relative;
+    z-index: 2;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--primary);
+    box-shadow:
+      0 0 0 4px rgba(124, 58, 237, 0.12),
+      0 0 18px rgba(124, 58, 237, 0.45);
+  }
+
+  .radar-marker__halo {
+    position: absolute;
+    inset: -4px;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.35), transparent 66%);
+    opacity: 0.7;
+    filter: blur(6px);
+  }
+
+  .radar-marker[data-highlighted="true"] {
+    animation: radar-marker-pulse 1.2s ease-out 1;
+  }
+
+  .radar-marker[data-visible="false"] {
+    opacity: 0.35;
+    transform: scale(0.92);
+  }
+
+  .radar-popup .leaflet-popup-content-wrapper {
+    padding: 0;
+    border-radius: 1.5rem;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .radar-popup .leaflet-popup-content {
+    margin: 0;
+  }
+
+  .radar-popup .leaflet-popup-tip {
+    background: var(--surface);
+  }
+
+  .leaflet-container {
+    background: color-mix(in srgb, var(--background) 92%, #ffffff 8%);
+    font-family: var(--font-inter), sans-serif;
+  }
+}
+
+::view-transition-old(root), ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
 }

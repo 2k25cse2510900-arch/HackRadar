@@ -1,0 +1,31 @@
+export const degreeYearOptions: Record<string, string[]> = {
+  "B.Tech": ["First Year", "Second Year", "Third Year", "Fourth Year", "Passed Out", "Other"],
+  "B.E": ["First Year", "Second Year", "Third Year", "Fourth Year", "Passed Out", "Other"],
+  "Diploma Engineering": ["First Year", "Second Year", "Third Year", "Passed Out", "Other"],
+  BCA: ["First Year", "Second Year", "Third Year", "Passed Out", "Other"],
+  MCA: ["First Year", "Second Year", "Passed Out", "Other"],
+  BBA: ["First Year", "Second Year", "Third Year", "Passed Out", "Other"],
+  MBA: ["First Year", "Second Year", "Passed Out", "Other"],
+  "B.Sc": ["First Year", "Second Year", "Third Year", "Passed Out", "Other"],
+  "M.Sc": ["First Year", "Second Year", "Passed Out", "Other"],
+  "B.Com": ["First Year", "Second Year", "Third Year", "Passed Out", "Other"],
+  "M.Com": ["First Year", "Second Year", "Passed Out", "Other"],
+  BA: ["First Year", "Second Year", "Third Year", "Passed Out", "Other"],
+  MA: ["First Year", "Second Year", "Passed Out", "Other"],
+  LLB: ["First Year", "Second Year", "Third Year", "Passed Out", "Other"],
+  LLM: ["First Year", "Second Year", "Passed Out", "Other"],
+  MBBS: ["First Year", "Second Year", "Third Year", "Fourth Year", "Final Year", "Internship", "Passed Out", "Other"],
+  BDS: ["First Year", "Second Year", "Third Year", "Fourth Year", "Passed Out", "Other"],
+  "B.Pharm": ["First Year", "Second Year", "Third Year", "Fourth Year", "Passed Out", "Other"],
+  "M.Pharm": ["First Year", "Second Year", "Passed Out", "Other"],
+  "B.Des": ["First Year", "Second Year", "Third Year", "Fourth Year", "Passed Out", "Other"],
+  "M.Des": ["First Year", "Second Year", "Passed Out", "Other"],
+  "B.Arch": ["First Year", "Second Year", "Third Year", "Fourth Year", "Fifth Year", "Passed Out", "Other"],
+  "M.Arch": ["First Year", "Second Year", "Passed Out", "Other"],
+  PhD: ["Research Scholar", "Submitted Thesis", "Completed", "Other"],
+  Other: [],
+};
+
+export const degreeYearHelperText: Record<string, string> = {
+  "B.Tech": "Year refers to your B.Tech academic year.",
+};

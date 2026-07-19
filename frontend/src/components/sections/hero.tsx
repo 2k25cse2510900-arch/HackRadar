@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -42,6 +42,8 @@ const cards = [
     tags: ["AI", "Startup", "Microsoft"],
   },
 ];
+
+const fallbackRailHeight = 608;
 
 type HackathonCardProps = {
   name: string;
@@ -144,6 +146,98 @@ function HackathonCard({
         </div>
       </div>
     </motion.article>
+  );
+}
+
+function AnimatedHackathonRail() {
+  const railRef = useRef<HTMLDivElement>(null);
+  const [viewportHeight, setViewportHeight] = useState(fallbackRailHeight);
+  const [loopDistance, setLoopDistance] = useState(fallbackRailHeight);
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      const primarySet = railRef.current?.querySelector<HTMLElement>("[data-hackathon-rail-set='primary']");
+      const rail = railRef.current;
+      if (!primarySet || !rail) return;
+
+      const height = primarySet.getBoundingClientRect().height;
+      if (height > 0) {
+        setViewportHeight(height);
+      }
+
+      const computedStyle = window.getComputedStyle(rail);
+      const gap = Number.parseFloat(computedStyle.rowGap || computedStyle.gap || "0");
+      if (height > 0) {
+        setLoopDistance(height + (Number.isFinite(gap) ? gap : 0));
+      }
+    };
+
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    if (railRef.current) {
+      observer.observe(railRef.current);
+    }
+
+    window.addEventListener("resize", measure);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
+  return (
+    <div className="relative self-stretch">
+      <div className="absolute inset-0 -z-10 rounded-[2rem] border border-border/40 bg-muted/20 blur-3xl" />
+      <div
+        className="overflow-hidden"
+        style={{
+          height: viewportHeight,
+          maskImage:
+            "linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)",
+        }}
+      >
+        <motion.div
+          ref={railRef}
+          className="flex flex-col gap-4 sm:gap-5 transform-gpu will-change-transform"
+          animate={{ y: [-loopDistance, 0] }}
+          transition={{
+            duration: 28,
+            ease: "linear",
+            repeat: Number.POSITIVE_INFINITY,
+            repeatType: "loop",
+          }}
+        >
+          <div data-hackathon-rail-set="primary" className="flex flex-col gap-4 sm:gap-5">
+            {cards.map((card) => (
+              <HackathonCard
+                key={card.name}
+                name={card.name}
+                status={card.status}
+                prize={card.prize}
+                mode={card.mode}
+                tags={card.tags}
+              />
+            ))}
+          </div>
+          <div aria-hidden="true" className="flex flex-col gap-4 sm:gap-5">
+            {cards.map((card, index) => (
+              <HackathonCard
+                key={`${card.name}-loop-${index}`}
+                name={card.name}
+                status={card.status}
+                prize={card.prize}
+                mode={card.mode}
+                tags={card.tags}
+              />
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </div>
   );
 }
 
@@ -284,21 +378,8 @@ export function Hero() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.25 }}
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.08 }}
-          className="relative self-stretch"
         >
-          <div className="absolute inset-0 -z-10 rounded-[2rem] border border-border/40 bg-muted/20 blur-3xl" />
-          <div className="grid gap-4 sm:gap-5">
-            {cards.map((card) => (
-              <HackathonCard
-                key={card.name}
-                name={card.name}
-                status={card.status}
-                prize={card.prize}
-                mode={card.mode}
-                tags={card.tags}
-              />
-            ))}
-          </div>
+          <AnimatedHackathonRail />
         </motion.div>
       </div>
 

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { Navbar } from "@/components/layout/navbar";
 import { ProtectedPage } from "@/components/auth/protected-page";
+import { ProfileCompletionGate } from "@/components/auth/profile-completion-gate";
 import { Dialog } from "@/components/ui";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -247,5 +248,7 @@ export function HackathonsClient({ enrolledPage = false }: HackathonsClientProps
     </div>
   );
 
-  return enrolledPage ? <ProtectedPage>{page}</ProtectedPage> : page;
+  const gatedPage = enrolledPage ? <ProtectedPage>{page}</ProtectedPage> : page;
+
+  return <ProfileCompletionGate>{gatedPage}</ProfileCompletionGate>;
 }

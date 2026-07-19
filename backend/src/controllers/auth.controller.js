@@ -16,7 +16,7 @@ const login = asyncHandler(async (req, res) => {
 });
 
 function getFrontendRedirect(path) {
-  return new URL(path, env.frontendUrl).toString();
+  return new URL(path, env.clientUrl).toString();
 }
 
 function getSafeNextPath(value) {
@@ -47,7 +47,7 @@ const googleCallback = (req, res, next) => {
     }
 
     const data = authService.buildAuthPayload(user);
-    const redirectUrl = new URL("/auth/callback", env.frontendUrl);
+    const redirectUrl = new URL("/auth/callback", env.clientUrl);
     redirectUrl.searchParams.set("token", data.token);
     redirectUrl.searchParams.set("next", getSafeNextPath(req.query.state));
     return res.redirect(redirectUrl.toString());

@@ -37,6 +37,7 @@ yarn-error.log*
 .env*
 !.env.example
 !frontend/.env.example
+!frontend/.env.local.example
 !backend/.env.example
 backend/node_modules/
 frontend/node_modules/

@@ -2,20 +2,16 @@ const mongoose = require("mongoose");
 
 const profileSchema = new mongoose.Schema(
   {
-    name: { type: String, default: "Kartik Kumar", trim: true },
+    name: { type: String, default: "", trim: true },
     college: { type: String, default: "", trim: true },
+    countryCode: { type: String, default: "+91", trim: true },
     year: { type: String, default: "", trim: true },
     degree: { type: String, default: "", trim: true },
-    domains: { type: [String], default: ["AI", "Web Development"] },
-    skills: { type: [String], default: ["React", "Node.js", "Git", "GitHub"] },
-    experienceLevel: {
-      type: String,
-      enum: ["Beginner", "Intermediate", "Advanced"],
-      default: "Beginner",
-    },
-    goals: { type: [String], default: ["Learning", "Build Portfolio"] },
-    preferredMode: { type: String, default: "Online" },
-    availability: { type: String, default: "Anytime" },
+    domains: { type: [String], default: [] },
+    skills: { type: [String], default: [] },
+    goals: { type: [String], default: [] },
+    preferredMode: { type: String, default: "" },
+    availability: { type: String, default: "" },
     phoneNumber: { type: String, default: "", trim: true },
   },
   { _id: false }
@@ -43,6 +39,11 @@ const userSchema = new mongoose.Schema(
     telegramVerificationCode: {
       type: String,
       default: "",
+    },
+
+    profileCompleted: {
+      type: Boolean,
+      default: false,
     },
 
     telegramVerificationExpires: {

@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Check, CheckCircle2, Sparkles, SunMoon } from "lucide-react";
+import { Check, CheckCircle2, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui";
+import { ThemeToggleButton } from "@/components/ui/theme-toggle-button";
 import { cn } from "@/lib/utils";
 import { getAuthUserDisplayName } from "@/lib/api";
 import { useAuth } from "@/providers";
@@ -17,6 +18,7 @@ import { MobileNav } from "./mobile-nav";
 
 const links = [
   { href: "/", label: "Home" },
+  { href: "/radar", label: "Radar" },
   { href: "/hrai", label: "HRAI" },
   { href: "/hackathons", label: "Hackathons" },
   { href: "/enrolled", label: "Enrolled" },
@@ -260,7 +262,7 @@ export function Navbar() {
   const [isScrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const { isAuthenticated, signOut, user } = useAuth();
-  const { resolvedTheme, setTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const userLabel = getAuthUserDisplayName(user).split(" ")[0] || "User";
   const navbarTone = isScrolled
@@ -367,19 +369,14 @@ export function Navbar() {
               <span>HRAI+</span>
             </span>
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
+          <ThemeToggleButton
             type="button"
             aria-label="Toggle theme"
             className={cn(
               "transition-colors duration-200 hover:bg-muted/70",
               navbarTone.icon
             )}
-            onClick={() => setTheme(isDark ? "light" : "dark")}
-          >
-            <SunMoon className="size-4" />
-          </Button>
+          />
           <Button
             variant="ghost"
             asChild={!isAuthenticated}
@@ -418,19 +415,28 @@ export function Navbar() {
           </Button>
         </div>
 
-        <MobileNav
-          open={open}
-          onOpenChange={setOpen}
-          onOpenHraiPlus={() => setHraiPlusOpen(true)}
-          onThemeToggle={() => setTheme(isDark ? "light" : "dark")}
-          toneClassName={navbarTone.mobileTrigger}
-          authenticated={isAuthenticated}
-          userLabel={userLabel}
-          onLogout={async () => {
-            await signOut();
-            toast.success("Signed out");
-          }}
-        />
+        <div className="flex items-center gap-2 lg:hidden">
+          <ThemeToggleButton
+            type="button"
+            aria-label="Toggle theme"
+            className={cn(
+              "transition-colors duration-200 hover:bg-muted/70",
+              navbarTone.icon
+            )}
+          />
+          <MobileNav
+            open={open}
+            onOpenChange={setOpen}
+            onOpenHraiPlus={() => setHraiPlusOpen(true)}
+            toneClassName={navbarTone.mobileTrigger}
+            authenticated={isAuthenticated}
+            userLabel={userLabel}
+            onLogout={async () => {
+              await signOut();
+              toast.success("Signed out");
+            }}
+          />
+        </div>
       </div>
 
       <Dialog open={hraiPlusOpen} onOpenChange={setHraiPlusOpen}>

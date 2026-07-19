@@ -3,7 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Globe, User, Mail } from "lucide-react";
+import { ArrowRight, Mail } from "lucide-react";
+import { IoLogoLinkedin } from "react-icons/io5";
+import { SiGithub } from "react-icons/si";
 
 import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
@@ -17,6 +19,7 @@ const team = [
     image: "/about-team-1.png",
     linkedin: "https://www.linkedin.com/in/kartik-kumar955",
     email: "mailto:kk8247829@gmail.com",
+    github: "https://github.com/kartik-cs-redefine",
   },
   {
     name: "Krishna Kumar Gaur",
@@ -24,7 +27,8 @@ const team = [
     bio: "Building scalable frontend and backend systems while driving the core architecture of HackRadar.",
     image: "/about-team-2.png",
     linkedin: "https://www.linkedin.com/in/krishna-kumar-gaur-6498003a0/",
-    email: "mailto:gaursarita428@gmail.com",
+    email: "mailto:gaurkrishnakumar16@gmail.com",
+    github: "https://github.com/kgaur-tech",
   },
   {
     name: "Krish Chaddha",
@@ -33,6 +37,7 @@ const team = [
     image: "/about-team-3.png",
     linkedin: "https://www.linkedin.com/in/krishchaddha-1167a8397",
     email: "mailto:krishchaddha22@gmail.com",
+    github: "https://github.com/2k25cse2510900-arch",
   },
   {
     name: "Kshitij Rajput",
@@ -41,6 +46,7 @@ const team = [
     image: "/about-team-4.png",
     linkedin: "https://www.linkedin.com/in/kshitij-rajput-845481353",
     email: "mailto:rajputkshitij37@gmail.com",
+    github: "https://github.com/1729kshitij",
   },
 ];
 
@@ -82,6 +88,7 @@ function TeamCard({
   image,
   linkedin,
   email,
+  github,
 }: (typeof team)[number]) {
   return (
     <motion.article
@@ -115,13 +122,18 @@ function TeamCard({
 
         <div className="mt-5 flex items-center gap-2">
           <Button variant="outline" size="icon" asChild aria-label={`${name} LinkedIn profile`}>
-            <Link href={linkedin} target="_blank" rel="noreferrer">
-              <User className="size-4" />
+            <Link href={linkedin} target="_blank" rel="noopener noreferrer">
+              <IoLogoLinkedin className="size-4" />
             </Link>
           </Button>
           <Button variant="outline" size="icon" asChild aria-label={`Email ${name}`}>
             <Link href={email}>
               <Mail className="size-4" />
+            </Link>
+          </Button>
+          <Button variant="outline" size="icon" asChild aria-label={`${name} GitHub profile`}>
+            <Link href={github} target="_blank" rel="noopener noreferrer">
+              <SiGithub className="size-4" />
             </Link>
           </Button>
         </div>
@@ -231,30 +243,18 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="py-8 sm:py-10 lg:py-12">
+        <section className="pt-4 pb-8 sm:pt-6 sm:pb-10 lg:pt-8 lg:pb-12">
           <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
             <Card className="overflow-hidden p-7 text-center sm:p-8 lg:p-9">
               <SectionHeading
-                title="Get in Touch"
-                subtitle="Interested in collaborating, contributing, or sharing feedback? We'd love to hear from you."
+                title="Contact With Us"
+                subtitle="Have feedback, suggestions, bug reports, or collaboration ideas? We'd love to hear from you. Send us an email and help us improve HackRadar."
               />
-              <div className="mt-6 flex flex-wrap justify-center gap-4">
+              <div className="mt-6 flex justify-center">
                 <Button variant="outline" size="lg" asChild>
-                  <Link href="https://github.com" target="_blank" rel="noreferrer">
-                    <Globe className="size-4" />
-                    GitHub
-                  </Link>
-                </Button>
-                <Button variant="outline" size="lg" asChild>
-                  <Link href="https://www.linkedin.com" target="_blank" rel="noreferrer">
-                    <User className="size-4" />
-                    LinkedIn
-                  </Link>
-                </Button>
-                <Button variant="outline" size="lg" asChild>
-                  <Link href="mailto:hello@hackradar.com">
+                  <Link href="mailto:myth88899495@gmail.com">
                     <Mail className="size-4" />
-                    Email
+                    Email Us
                   </Link>
                 </Button>
               </div>

@@ -1,11 +1,18 @@
 const mongoose = require("mongoose");
+require("dotenv").config();
 
-mongoose.connect("MONGODB_URI=mongodb+srv://hackradaradmin:Et79zdNnGesUxlB6@hackradar-cluster.qyztrbh.mongodb.net/hackradar?retryWrites=true&w=majority&appName=hackradar-cluster")
-.then(() => {
-    console.log("✅ Connected Successfully");
-    process.exit(0);
-})
-.catch(err => {
-    console.error(err);
-    process.exit(1);
+async function main() {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error("MONGODB_URI is not configured.");
+  }
+
+  await mongoose.connect(uri);
+  console.log("Connected Successfully");
+  process.exit(0);
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
 });

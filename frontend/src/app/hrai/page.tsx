@@ -31,10 +31,9 @@ const emptyProfile: UserProfile = {
   degree: "",
   domains: [],
   skills: [],
-  experienceLevel: "Beginner",
   goals: [],
-  preferredMode: "Online",
-  availability: "Anytime",
+  preferredMode: "",
+  availability: "",
   phoneNumber: "",
 };
 

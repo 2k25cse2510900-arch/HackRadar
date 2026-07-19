@@ -19,7 +19,7 @@ The frontend and backend can be installed, run, and deployed separately.
 │   ├── tsconfig.json
 │   ├── postcss.config.mjs
 │   ├── eslint.config.mjs
-│   └── .env.example
+│   └── .env.local.example
 ├── backend/
 │   ├── src/
 │   │   ├── config/
@@ -63,7 +63,7 @@ http://localhost:5000/api
 ```bash
 cd frontend
 npm install
-cp .env.example .env
+cp .env.local.example .env.local
 npm run dev
 ```
 
@@ -90,6 +90,7 @@ MONGODB_URI=mongodb://127.0.0.1:27017/hackradar
 JWT_SECRET=replace-with-a-long-random-secret
 JWT_EXPIRES_IN=7d
 FRONTEND_URL=http://localhost:3000
+CLIENT_URL=http://localhost:3000
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
@@ -140,7 +141,7 @@ Create two Railway services from the same repository:
    - Root directory: `backend`
    - Build command: `npm install`
    - Start command: `npm start`
-   - Add MongoDB, JWT, Google OAuth, email, Telegram, and frontend URL variables
+   - Add MongoDB, JWT, Google OAuth, email, Telegram, and frontend/client URL variables
 
 ## Render
 

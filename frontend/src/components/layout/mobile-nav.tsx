@@ -10,7 +10,6 @@ type MobileNavProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOpenHraiPlus: () => void;
-  onThemeToggle: () => void;
   toneClassName: string;
   authenticated?: boolean;
   userLabel?: string;
@@ -19,6 +18,7 @@ type MobileNavProps = {
 
 const links = [
   { href: "/", label: "Home" },
+  { href: "/radar", label: "Radar" },
   { href: "/hrai", label: "HRAI" },
   { href: "/hackathons", label: "Hackathons" },
   { href: "/enrolled", label: "Enrolled" },
@@ -30,7 +30,6 @@ export function MobileNav({
   open,
   onOpenChange,
   onOpenHraiPlus,
-  onThemeToggle,
   toneClassName,
   authenticated = false,
   userLabel = "User",
@@ -87,14 +86,6 @@ export function MobileNav({
                 >
                   <Sparkles className="size-4" />
                   HRAI+
-                </Button>
-                <Button
-                  variant="outline"
-                  className="justify-start"
-                  type="button"
-                  onClick={onThemeToggle}
-                >
-                  Toggle theme
                 </Button>
               </div>
 

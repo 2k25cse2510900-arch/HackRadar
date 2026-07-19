@@ -1,7 +1,12 @@
-const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-const API_URL = configuredApiUrl.replace(/\/$/, "").endsWith("/api")
-  ? configuredApiUrl
-  : `${configuredApiUrl.replace(/\/$/, "")}/api`;
+function getApiBaseUrl() {
+  const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (!configuredApiUrl) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+  }
+
+  const normalizedApiUrl = configuredApiUrl.replace(/\/$/, "");
+  return normalizedApiUrl.endsWith("/api") ? normalizedApiUrl : `${normalizedApiUrl}/api`;
+}
 
 export const AUTH_TOKEN_STORAGE_KEY = "hackradar-auth-token";
 export const AUTH_USER_STORAGE_KEY = "hackradar-auth-user";
@@ -25,17 +30,18 @@ export type AuthUser = {
   authProvider?: "email" | "google";
   telegramChatId?: string | null;
   telegramVerified?: boolean;
+  profileCompleted?: boolean;
   profile?: UserProfile;
 };
 
 export type UserProfile = {
   name: string;
   college: string;
+  countryCode?: string;
   year: string;
   degree: string;
   domains: string[];
   skills: string[];
-  experienceLevel: "Beginner" | "Intermediate" | "Advanced";
   goals: string[];
   preferredMode: string;
   availability: string;
@@ -81,7 +87,7 @@ export type Alert = {
 };
 
 function apiUrl(path: string) {
-  return `${API_URL.replace(/\/$/, "")}${path}`;
+  return `${getApiBaseUrl()}${path}`;
 }
 
 export function getGoogleAuthUrl(nextPath?: string | null) {

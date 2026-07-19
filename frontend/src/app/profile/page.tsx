@@ -10,9 +10,13 @@ import { toast } from "sonner";
 
 import { Navbar } from "@/components/layout/navbar";
 import { ProtectedPage } from "@/components/auth/protected-page";
+import { CollegeSelector } from "@/components/profile/CollegeSelector";
+import { DegreeSelector } from "@/components/profile/DegreeSelector";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PhoneNumberInput } from "@/components/profile/PhoneNumberInput";
+import { YearSelector } from "@/components/profile/YearSelector";
 import {
   getAuthUserDisplayName,
   getProfile,
@@ -57,18 +61,17 @@ const goals = ["Win Hackathons", "Learning", "Internship", "Networking", "Build 
 
 const modes = ["Online", "Offline", "Hybrid"];
 const availability = ["Weekdays", "Weekends", "Anytime"];
-const experienceLevels: UserProfile["experienceLevel"][] = ["Beginner", "Intermediate", "Advanced"];
 const emptyProfile: UserProfile = {
   name: "",
   college: "",
+  countryCode: "+91",
   year: "",
   degree: "",
   domains: [],
   skills: [],
-  experienceLevel: "Beginner",
   goals: [],
-  preferredMode: "Online",
-  availability: "Anytime",
+  preferredMode: "",
+  availability: "",
   phoneNumber: "",
 };
 
@@ -232,6 +235,7 @@ export default function ProfilePage() {
           setProfile({
             ...emptyProfile,
             ...result.profile,
+            countryCode: result.profile.countryCode || "+91",
             phoneNumber: result.profile.phoneNumber || user?.phoneNumber || "",
           });
         }
@@ -279,7 +283,11 @@ export default function ProfilePage() {
     try {
       setSaving(true);
       const result = await updateProfile(profile);
-      setProfile({ ...emptyProfile, ...result.profile });
+      setProfile({
+        ...emptyProfile,
+        ...result.profile,
+        countryCode: result.profile.countryCode || "+91",
+      });
       await refreshUser();
       toast.success("Profile Saved Successfully");
     } catch (error) {
@@ -327,31 +335,35 @@ export default function ProfilePage() {
 
               <SectionCard title="Basic Information">
                 <div className="grid gap-4 md:grid-cols-2">
-                  <Input
-                    value={profile.name}
-                    onChange={(event) => setProfile({ ...profile, name: event.target.value })}
-                    placeholder="Name"
-                  />
-                  <Input
-                    value={profile.college}
-                    onChange={(event) => setProfile({ ...profile, college: event.target.value })}
-                    placeholder="College"
-                  />
-                  <Input
-                    value={profile.year}
-                    onChange={(event) => setProfile({ ...profile, year: event.target.value })}
-                    placeholder="Year"
-                  />
-                  <Input
-                    value={profile.degree}
-                    onChange={(event) => setProfile({ ...profile, degree: event.target.value })}
-                    placeholder="Degree"
-                  />
-                  <Input
-                    value={profile.phoneNumber || ""}
-                    onChange={(event) => setProfile({ ...profile, phoneNumber: event.target.value })}
-                    placeholder="Phone Number"
-                  />
+                  <div className="space-y-4">
+                    <Input
+                      value={profile.name}
+                      onChange={(event) => setProfile({ ...profile, name: event.target.value })}
+                      placeholder="Name"
+                    />
+                    <DegreeSelector
+                      value={profile.degree}
+                      onValueChange={(degree) => setProfile((current) => ({ ...current, degree, year: "" }))}
+                    />
+                    <PhoneNumberInput
+                      countryCode={profile.countryCode || "+91"}
+                      phoneNumber={profile.phoneNumber || ""}
+                      onCountryCodeChange={(countryCode) => setProfile((current) => ({ ...current, countryCode }))}
+                      onPhoneNumberChange={(phoneNumber) => setProfile((current) => ({ ...current, phoneNumber }))}
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <CollegeSelector
+                      value={profile.college}
+                      onValueChange={(college) => setProfile((current) => ({ ...current, college }))}
+                      placeholder="College"
+                    />
+                    <YearSelector
+                      degree={profile.degree}
+                      value={profile.year}
+                      onValueChange={(year) => setProfile((current) => ({ ...current, year }))}
+                    />
+                  </div>
                 </div>
               </SectionCard>
 
@@ -361,26 +373,6 @@ export default function ProfilePage() {
 
               <SectionCard title="Skills">
                 <ToggleGroup label="" values={skills} selected={profile.skills} onToggle={toggleMulti("skills")} />
-              </SectionCard>
-
-              <SectionCard title="Experience Level">
-                <div className="flex flex-wrap gap-2">
-                  {experienceLevels.map((level) => (
-                    <button
-                      key={level}
-                      type="button"
-                      onClick={() => setProfile({ ...profile, experienceLevel: level })}
-                    className={cn(
-                      "rounded-full border px-4 py-2 text-sm font-medium transition-all",
-                      profile.experienceLevel === level
-                          ? "border-primary-border bg-primary-soft text-primary shadow-[0_10px_20px_rgba(124,58,237,0.12)] dark:bg-[rgba(124,58,237,0.18)] dark:text-[#E9D5FF]"
-                          : "border-border bg-surface text-foreground hover:bg-muted"
-                    )}
-                  >
-                    {level}
-                  </button>
-                  ))}
-                </div>
               </SectionCard>
 
               <SectionCard title="Goals">

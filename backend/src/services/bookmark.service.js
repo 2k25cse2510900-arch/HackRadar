@@ -4,10 +4,18 @@ const hackathonService = require("./hackathon.service");
 
 async function listBookmarks(userId) {
   const bookmarks = await Bookmark.find({ user: userId }).sort({ createdAt: -1 });
-  return bookmarks.map((bookmark) => ({
-    ...bookmark.toObject(),
-    hackathon: hackathonService.getHackathonById(bookmark.hackathonId),
-  }));
+  return bookmarks
+    .map((bookmark) => {
+      try {
+        return {
+          ...bookmark.toObject(),
+          hackathon: hackathonService.getHackathonById(bookmark.hackathonId),
+        };
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
 }
 
 async function saveBookmark(userId, hackathonId) {

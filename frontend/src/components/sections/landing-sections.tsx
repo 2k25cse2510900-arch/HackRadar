@@ -11,6 +11,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { DiscoverHackRadar } from "@/components/landing/discover-hackradar";
 import { StatsSection } from "./stats-section";
 import { HackRadarWorkflowGrid } from "./hackradar-workflow-grid";
 import { HackRadarJourneyAccordion } from "./hackradar-journey-accordion";
@@ -348,6 +349,8 @@ export function LandingSections() {
       <StatsSection />
 
       <CTASection />
+
+      <DiscoverHackRadar />
 
       <footer className="border-t border-border py-16">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:px-8 xl:grid-cols-[1.3fr_1fr]">

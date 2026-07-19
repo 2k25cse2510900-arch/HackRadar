@@ -6,18 +6,20 @@ export type RecommendationResult = {
   reasons: string[];
 };
 
-const experienceRank = {
-  Beginner: 1,
-  Intermediate: 2,
-  Advanced: 3,
-} as const;
-
 function normalize(values: string[]) {
-  return values.map((value) => value.toLowerCase());
+  return values
+    .map((value) => value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim())
+    .filter(Boolean);
 }
 
 function hasMatch(profileValues: string[], candidate: string) {
-  return normalize(profileValues).includes(candidate.toLowerCase());
+  const normalizedCandidate = candidate.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  return normalize(profileValues).some(
+    (value) =>
+      value === normalizedCandidate ||
+      value.includes(normalizedCandidate) ||
+      normalizedCandidate.includes(value)
+  );
 }
 
 export function recommendHackathons(
@@ -40,14 +42,6 @@ export function recommendHackathons(
       if (skillMatches.length > 0) {
         score += Math.min(30, skillMatches.length * 10);
         reasons.push(`Matches your ${skillMatches[0]} skills`);
-      }
-
-      if (experienceRank[profile.experienceLevel] >= experienceRank[hackathon.difficulty]) {
-        score += 15;
-        reasons.push(`${hackathon.difficulty} friendly`);
-      } else if (profile.experienceLevel === "Intermediate" && hackathon.difficulty === "Advanced") {
-        score += 6;
-        reasons.push("Stretch opportunity for your experience level");
       }
 
       if (profile.preferredMode === hackathon.mode || profile.preferredMode === "Hybrid") {
@@ -80,6 +74,6 @@ export function recommendHackathons(
         reasons: Array.from(new Set(reasons)).slice(0, 4),
       };
     })
-    .filter((item) => item.matchScore >= 60)
+    .filter((item) => item.matchScore >= 45)
     .sort((a, b) => b.matchScore - a.matchScore);
 }

@@ -8,6 +8,7 @@ import { useTheme } from "next-themes";
 
 import { Logo } from "@/components/layout/logo";
 import { GlowingStarsBackground } from "@/components/ui/glowing-stars";
+import { ThemeToggleButton } from "@/components/ui/theme-toggle-button";
 import { cn } from "@/lib/utils";
 
 type AuthLayoutProps = {
@@ -40,9 +41,16 @@ export function AuthLayout({ children, topLeftVariant = "back", topRightAction }
             <ArrowLeft className="size-4" />
             <span>Back to Home</span>
           </Link>
-        )}
+          )}
       </div>
-      <div className="fixed right-6 top-6 z-20 sm:right-6 sm:top-6">{topRightAction}</div>
+      <div className="fixed right-6 top-6 z-20 flex flex-col items-end gap-2 sm:flex-row sm:items-center sm:gap-3 sm:right-6 sm:top-6">
+        <ThemeToggleButton
+          type="button"
+          aria-label="Toggle theme"
+          className="transition-colors duration-200 hover:bg-muted/70"
+        />
+        {topRightAction}
+      </div>
 
       <section
         className={cn(
