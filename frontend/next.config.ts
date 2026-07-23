@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: projectRoot,
   },
+
+  // ADD THIS
+  allowedDevOrigins: ["192.168.1.5"],
+
   async redirects() {
     return [
       {

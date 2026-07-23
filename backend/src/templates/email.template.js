@@ -2,6 +2,8 @@ const buildReminderEmail = ({
   firstName,
   title,
   registrationLink,
+  registrationDeadline,
+  remainingTime,
 }) => {
   return `
 <!DOCTYPE html>
@@ -70,7 +72,11 @@ margin:25px 0;
 </h2>
 
 <p>
-Registration deadline is approaching.
+<strong>Registration deadline:</strong> ${registrationDeadline || "Check the official website"}
+</p>
+
+<p>
+<strong>Time remaining:</strong> ${remainingTime || "Registration deadline is approaching"}
 </p>
 
 </div>

@@ -14,11 +14,14 @@ if (!env.telegramBotToken) {
   });
 
   bot.on("polling_error", (error) => {
-    logger.warn("Telegram polling error:", error.response?.body || error.message);
+    logger.warn(
+      "Telegram polling error:",
+      error?.response?.body || error?.message || error
+    );
   });
 
   bot.on("error", (error) => {
-    logger.warn("Telegram bot error:", error.message);
+    logger.warn("Telegram bot error:", error?.message || error);
   });
 
   bot.onText(/\/start/, async (msg) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { Loader2, Mail } from "lucide-react";
@@ -19,13 +19,13 @@ export function LoginForm() {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { signIn } = useAuth();
   const [submitting, setSubmitting] = useState(false);
-  const nextPath = searchParams.get("next");
+  const [nextPath, setNextPath] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    setNextPath(params.get("next"));
     const authError = params.get("auth_error");
     if (!authError) return;
 

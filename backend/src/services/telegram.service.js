@@ -28,8 +28,9 @@ const sendTelegramMessage = async (chatId, message) => {
   } catch (error) {
     console.error(
       "Telegram Error:",
-      error.response?.data || error.message
+      error?.response?.data || error?.message || error
     );
+    return null;
   }
 };
 

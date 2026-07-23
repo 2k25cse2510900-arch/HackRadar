@@ -9,7 +9,12 @@ import { Navbar } from "@/components/layout/navbar";
 import { ProtectedPage } from "@/components/auth/protected-page";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { createAlert, deleteAlert, listAlerts, listBookmarks, type Alert, type Bookmark } from "@/lib/api";
+import {
+  deleteAlert,
+  getAlertErrorMessage,
+  listAlerts,
+  type Alert,
+} from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 type AlertPreferences = {
@@ -18,7 +23,7 @@ type AlertPreferences = {
   aiCalls: boolean;
   browser: boolean;
   email: boolean;
-  reminderTiming: "24" | "12" | "1";
+  reminderTiming: "168" | "72" | "24" | "1";
 };
 
 const defaultPreferences: AlertPreferences = {
@@ -27,8 +32,15 @@ const defaultPreferences: AlertPreferences = {
   aiCalls: false,
   browser: false,
   email: false,
-  reminderTiming: "24",
+  reminderTiming: "168",
 };
+
+function formatAlertTime(alertTime?: string) {
+  if (!alertTime) return "Not available";
+
+  const date = new Date(alertTime);
+  return Number.isNaN(date.getTime()) ? "Not available" : date.toLocaleString();
+}
 
 function ToggleRow({
   title,
@@ -100,18 +112,21 @@ function RadioItem({
 export function AlertsPage() {
   const [preferences, setPreferences] = useState<AlertPreferences>(defaultPreferences);
   const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const loadData = async () => {
     try {
       setLoading(true);
-      const [nextAlerts, nextBookmarks] = await Promise.all([listAlerts(), listBookmarks()]);
-      setAlerts(nextAlerts);
-      setBookmarks(nextBookmarks);
+      setLoadError(null);
+      const nextAlerts = await listAlerts();
+      setAlerts(Array.isArray(nextAlerts) ? nextAlerts : []);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to load alerts");
+      const message = getAlertErrorMessage(error, "Unable to load alerts. Please try again.");
+      setAlerts([]);
+      setLoadError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -120,15 +135,19 @@ export function AlertsPage() {
   useEffect(() => {
     let active = true;
 
-    Promise.all([listAlerts(), listBookmarks()])
-      .then(([nextAlerts, nextBookmarks]) => {
+    listAlerts()
+      .then((nextAlerts) => {
         if (active) {
-          setAlerts(nextAlerts);
-          setBookmarks(nextBookmarks);
+          setAlerts(Array.isArray(nextAlerts) ? nextAlerts : []);
         }
       })
       .catch((error) => {
-        toast.error(error instanceof Error ? error.message : "Unable to load alerts");
+        const message = getAlertErrorMessage(error, "Unable to load alerts. Please try again.");
+        if (active) {
+          setAlerts([]);
+          setLoadError(message);
+        }
+        toast.error(message);
       })
       .finally(() => {
         if (active) {
@@ -155,29 +174,11 @@ export function AlertsPage() {
       return;
     }
 
-    const alertableBookmarks = bookmarks.filter((bookmark) => bookmark.hackathon?.registrationDeadline);
-    if (alertableBookmarks.length === 0) {
-      toast.error("Track a hackathon with a registration deadline before saving alerts");
-      return;
-    }
-
     try {
       setSaving(true);
-      await Promise.all(
-        alertableBookmarks.map((bookmark) =>
-          createAlert({
-            hackathonId: bookmark.hackathonId,
-            title: `${bookmark.hackathon?.name || "Hackathon"} reminder`,
-            channels,
-            frequency: "once",
-            settings: preferences,
-          })
-        )
-      );
-      await loadData();
       toast.success("Preferences Saved Successfully");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to save preferences");
+      toast.error(getAlertErrorMessage(error, "Unable to save preferences. Please try again."));
     } finally {
       setSaving(false);
     }
@@ -189,7 +190,7 @@ export function AlertsPage() {
       setAlerts((current) => current.filter((alert) => alert._id !== alertId));
       toast.success("Alert deleted");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to delete alert");
+      toast.error(getAlertErrorMessage(error, "Unable to delete alert. Please try again."));
     }
   };
 
@@ -258,16 +259,22 @@ export function AlertsPage() {
                     <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-foreground">
                       Reminder Timing
                     </h2>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
                       <RadioItem
-                        label="24 Hours Before"
-                        value="24"
+                        label="7 Days Before"
+                        value="168"
                         current={preferences.reminderTiming}
                         onSelect={(value) => setPreferences((current) => ({ ...current, reminderTiming: value }))}
                       />
                       <RadioItem
-                        label="12 Hours Before"
-                        value="12"
+                        label="3 Days Before"
+                        value="72"
+                        current={preferences.reminderTiming}
+                        onSelect={(value) => setPreferences((current) => ({ ...current, reminderTiming: value }))}
+                      />
+                      <RadioItem
+                        label="1 Day Before"
+                        value="24"
                         current={preferences.reminderTiming}
                         onSelect={(value) => setPreferences((current) => ({ ...current, reminderTiming: value }))}
                       />
@@ -304,17 +311,43 @@ export function AlertsPage() {
                 <div className="mt-5 grid gap-3">
                   {loading ? (
                     <p className="text-sm text-muted-foreground">Loading reminders...</p>
-                  ) : alerts.length > 0 ? (
+                  ) : loadError ? (
+                    <div className="rounded-2xl border border-destructive/30 bg-destructive/5 px-4 py-4">
+                      <p className="text-sm text-destructive">{loadError}</p>
+                      <Button type="button" variant="outline" size="sm" onClick={loadData} className="mt-3">
+                        Try again
+                      </Button>
+                    </div>
+                  ) : Array.isArray(alerts) && alerts.length > 0 ? (
                     alerts.map((alert) => (
                       <div
                         key={alert._id}
-                        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-background px-4 py-4"
+                        className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-border bg-background px-4 py-4"
                       >
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium text-foreground">{alert.title}</p>
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            {new Date(alert.alertTime).toLocaleString()} · {alert.channels.join(", ")}
-                          </p>
+                          <dl className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+                            <div>
+                              <dt className="font-medium text-foreground">Reminder time</dt>
+                              <dd>{formatAlertTime(alert.alertTime)}</dd>
+                            </div>
+                            <div>
+                              <dt className="font-medium text-foreground">Channels</dt>
+                              <dd>
+                                {Array.isArray(alert.channels) && alert.channels.length > 0
+                                  ? alert.channels.join(", ")
+                                  : "None"}
+                              </dd>
+                            </div>
+                            <div>
+                              <dt className="font-medium text-foreground">Frequency</dt>
+                              <dd>{alert.frequency || "Not specified"}</dd>
+                            </div>
+                            <div>
+                              <dt className="font-medium text-foreground">Status</dt>
+                              <dd>{alert.enabled ? "Enabled" : "Disabled"}</dd>
+                            </div>
+                          </dl>
                         </div>
                         <Button type="button" variant="outline" size="sm" onClick={() => removeAlert(alert._id)}>
                           <Trash2 className="size-4" />

@@ -17,7 +17,7 @@ import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 import { Button, Card, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui";
-import { createAlert } from "@/lib/api";
+import { createAlert, getAlertErrorMessage } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { Hackathon } from "../types";
 import { getHackathonTimeline, type TimelineStage } from "../timeline-data";
@@ -141,7 +141,7 @@ type HackathonNotificationPreferences = {
   browser: boolean;
   email: boolean;
   aiReminderCall: boolean;
-  reminderTiming: "24" | "12" | "6" | "1";
+  reminderTiming: "168" | "72" | "24" | "1";
 };
 
 const DEFAULT_NOTIFICATION_PREFERENCES: HackathonNotificationPreferences = {
@@ -150,7 +150,7 @@ const DEFAULT_NOTIFICATION_PREFERENCES: HackathonNotificationPreferences = {
   browser: false,
   email: false,
   aiReminderCall: false,
-  reminderTiming: "24",
+  reminderTiming: "168",
 };
 
 function ToggleRow({
@@ -240,11 +240,6 @@ export function HackathonNotificationsDialog({ hackathon }: { hackathon: Hackath
       return;
     }
 
-    if (!hackathon.registrationDeadline) {
-      toast.error("This hackathon does not have a registration deadline for reminders");
-      return;
-    }
-
     try {
       setSaving(true);
       await createAlert({
@@ -256,7 +251,7 @@ export function HackathonNotificationsDialog({ hackathon }: { hackathon: Hackath
       });
       toast.success("Preferences Saved Successfully");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to save preferences");
+      toast.error(getAlertErrorMessage(error, "Unable to save preferences. Please try again."));
     } finally {
       setSaving(false);
     }
@@ -325,20 +320,20 @@ export function HackathonNotificationsDialog({ hackathon }: { hackathon: Hackath
               <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-foreground">Reminder Timing</h2>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <TimingOption
-                  label="24 Hours Before"
+                  label="7 Days Before"
+                  value="168"
+                  current={preferences.reminderTiming}
+                  onSelect={(value) => setPreferences((current) => ({ ...current, reminderTiming: value }))}
+                />
+                <TimingOption
+                  label="3 Days Before"
+                  value="72"
+                  current={preferences.reminderTiming}
+                  onSelect={(value) => setPreferences((current) => ({ ...current, reminderTiming: value }))}
+                />
+                <TimingOption
+                  label="1 Day Before"
                   value="24"
-                  current={preferences.reminderTiming}
-                  onSelect={(value) => setPreferences((current) => ({ ...current, reminderTiming: value }))}
-                />
-                <TimingOption
-                  label="12 Hours Before"
-                  value="12"
-                  current={preferences.reminderTiming}
-                  onSelect={(value) => setPreferences((current) => ({ ...current, reminderTiming: value }))}
-                />
-                <TimingOption
-                  label="6 Hours Before"
-                  value="6"
                   current={preferences.reminderTiming}
                   onSelect={(value) => setPreferences((current) => ({ ...current, reminderTiming: value }))}
                 />

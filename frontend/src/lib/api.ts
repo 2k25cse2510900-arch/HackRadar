@@ -86,6 +86,30 @@ export type Alert = {
   settings?: Record<string, unknown>;
 };
 
+function isAlert(value: unknown): value is Alert {
+  if (!value || typeof value !== "object") return false;
+
+  const alert = value as Partial<Alert>;
+  return (
+    typeof alert._id === "string" &&
+    typeof alert.hackathonId === "string" &&
+    typeof alert.title === "string" &&
+    Array.isArray(alert.channels) &&
+    alert.channels.every((channel) => typeof channel === "string") &&
+    typeof alert.frequency === "string" &&
+    typeof alert.enabled === "boolean" &&
+    typeof alert.alertTime === "string"
+  );
+}
+
+export function getAlertErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof TypeError) {
+    return "Unable to connect to the alerts service. Check your connection and try again.";
+  }
+
+  return error instanceof Error && error.message.trim() ? error.message : fallback;
+}
+
 function apiUrl(path: string) {
   return `${getApiBaseUrl()}${path}`;
 }
@@ -249,8 +273,24 @@ export function deleteBookmark(bookmarkId: string) {
   });
 }
 
+// ================= ALERT API =================
+
 export function listAlerts() {
-  return request<Alert[]>("/alerts");
+  return request<unknown>("/alerts").then((data) => {
+    if (data == null) return [];
+
+    const alerts = Array.isArray(data)
+      ? data
+      : typeof data === "object" && Array.isArray((data as { alerts?: unknown }).alerts)
+        ? (data as { alerts: unknown[] }).alerts
+        : null;
+
+    if (!alerts || !alerts.every(isAlert)) {
+      throw new Error("The alerts service returned an invalid response. Please try again.");
+    }
+
+    return alerts;
+  });
 }
 
 export function createAlert(payload: {
@@ -260,14 +300,42 @@ export function createAlert(payload: {
   frequency?: string;
   settings?: Record<string, unknown>;
 }) {
-  return request<Alert>("/alerts", {
+  return request<unknown>("/alerts", {
     method: "POST",
     body: JSON.stringify(payload),
+  }).then((data) => {
+    const alert = isAlert(data)
+      ? data
+      : data && typeof data === "object"
+        ? (data as { alert?: unknown }).alert
+        : null;
+
+    if (!isAlert(alert)) {
+      throw new Error("The alert was saved, but the server returned an invalid response.");
+    }
+
+    return alert;
   });
 }
 
+export function updateAlert(
+  alertId: string,
+  payload: Partial<{
+    title: string;
+    channels: string[];
+    frequency: string;
+    enabled: boolean;
+    settings: Record<string, unknown>;
+  }>
+) {
+  return request<{ alert: Alert }>(`/alerts/${alertId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  }).then((data) => data.alert);
+}
+
 export function deleteAlert(alertId: string) {
-  return request<null>(`/alerts/${alertId}`, {
+  return request<{ success: boolean }>(`/alerts/${alertId}`, {
     method: "DELETE",
   });
 }

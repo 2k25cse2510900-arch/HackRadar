@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { Check, CheckCircle2, Sparkles } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -25,6 +25,8 @@ const links = [
   { href: "/alerts", label: "Alerts" },
   { href: "/about", label: "About Us" },
 ];
+
+const subscribeToMountState = () => () => undefined;
 
 const hraiPlusFreeFeatures = [
   "Unlimited Hackathon Discovery",
@@ -260,10 +262,16 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const [hraiPlusOpen, setHraiPlusOpen] = useState(false);
   const [isScrolled, setScrolled] = useState(false);
+  const mounted = useSyncExternalStore(
+    subscribeToMountState,
+    () => true,
+    () => false
+  );
   const pathname = usePathname();
-  const { isAuthenticated, signOut, user } = useAuth();
+  const { isAuthenticated, loading: authLoading, signOut, user } = useAuth();
   const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
+  const isDark = mounted && resolvedTheme === "dark";
+  const authReady = mounted && !authLoading;
   const userLabel = getAuthUserDisplayName(user).split(" ")[0] || "User";
   const navbarTone = isScrolled
     ? {
@@ -377,37 +385,52 @@ export function Navbar() {
               navbarTone.icon
             )}
           />
-          <Button
-            variant="ghost"
-            asChild={!isAuthenticated}
-            type={isAuthenticated ? "button" : undefined}
-            className={cn(
-              "transition-colors duration-200 hover:bg-muted/70",
-              navbarTone.signIn
-            )}
-            onClick={
-              isAuthenticated
-                ? async () => {
-                    await signOut();
-                    toast.success("Signed out");
-                  }
-                : undefined
-            }
-          >
-            {isAuthenticated ? (
-              <span>Sign Out</span>
-            ) : (
-              <Link
-                href="/login"
-                className={cn(
-                  "transition-colors hover:bg-muted/70",
-                  navbarTone.hoverText
-                )}
-              >
-                Sign In
-              </Link>
-            )}
-          </Button>
+          {!authReady ? (
+            <Button
+              variant="ghost"
+              type="button"
+              disabled
+              aria-label="Loading authentication"
+              className={cn(
+                "transition-colors duration-200 hover:bg-muted/70",
+                navbarTone.signIn
+              )}
+            >
+              <span className="invisible">Sign In</span>
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              asChild={!isAuthenticated}
+              type={isAuthenticated ? "button" : undefined}
+              className={cn(
+                "transition-colors duration-200 hover:bg-muted/70",
+                navbarTone.signIn
+              )}
+              onClick={
+                isAuthenticated
+                  ? async () => {
+                      await signOut();
+                      toast.success("Signed out");
+                    }
+                  : undefined
+              }
+            >
+              {isAuthenticated ? (
+                <span>Sign Out</span>
+              ) : (
+                <Link
+                  href="/login"
+                  className={cn(
+                    "transition-colors hover:bg-muted/70",
+                    navbarTone.hoverText
+                  )}
+                >
+                  Sign In
+                </Link>
+              )}
+            </Button>
+          )}
           <Button asChild>
             <Link href="/profile" className="text-white hover:text-white">
               <span className="max-w-24 truncate">{userLabel}</span>
@@ -429,7 +452,7 @@ export function Navbar() {
             onOpenChange={setOpen}
             onOpenHraiPlus={() => setHraiPlusOpen(true)}
             toneClassName={navbarTone.mobileTrigger}
-            authenticated={isAuthenticated}
+            authenticated={authReady && isAuthenticated}
             userLabel={userLabel}
             onLogout={async () => {
               await signOut();

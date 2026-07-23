@@ -17,7 +17,11 @@ const listAlerts = asyncHandler(async (req, res) => {
 const createAlert = asyncHandler(async (req, res) => {
   const alert = await alertService.createAlert(
     req.user._id,
-    req.body
+    req.body,
+    {
+      caller: "alert.controller.createAlert",
+      requestUrl: req.originalUrl,
+    }
   );
 
   res.status(201).json(
